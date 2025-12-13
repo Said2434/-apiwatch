@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.config import settings
 from app.database import Base, async_engine
-from app.api import auth, monitors
+from app.api import auth, monitors, metrics
 from app.workers.scheduler import start_scheduler, stop_scheduler
 import logging
 
@@ -120,7 +120,7 @@ async def api_info():
 # Register API routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(monitors.router, prefix="/api/v1/monitors", tags=["Monitors"])
-# app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["Metrics"])  # Will add later
+app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["Metrics"])
 
 if __name__ == "__main__":
     import uvicorn
