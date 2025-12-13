@@ -377,7 +377,7 @@ async def get_dashboard_stats(
         total_uptime_sum += uptime_pct
 
     # Calculate overall uptime
-    overall_uptime = (total_uptime_sum / total_monitors) if total_monitors > 0 else 100.0
+    overall_uptime = (total_uptime_sum / total_monitors) if total_monitors > 0 else 0.0
 
     return DashboardStats(
         total_monitors=total_monitors,

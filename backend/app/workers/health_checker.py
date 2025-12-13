@@ -13,6 +13,7 @@ from app.database import AsyncSessionLocal
 from app.models.api_monitor import APIMonitor
 from app.models.health_check import HealthCheck
 from app.models.incident import Incident
+from app.websocket.manager import ws_manager
 
 logger = logging.getLogger(__name__)
 
@@ -254,3 +255,9 @@ async def check_all_active_monitors():
         await asyncio.gather(*tasks, return_exceptions=True)
 
     logger.info("✅ Health check cycle complete")
+
+    # Broadcast update notification to all WebSocket clients
+    await ws_manager.broadcast({
+        "type": "stats_updated",
+        "timestamp": datetime.utcnow().isoformat()
+    })

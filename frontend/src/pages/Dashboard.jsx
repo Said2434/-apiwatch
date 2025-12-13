@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { monitorAPI, metricsAPI } from '../lib/api';
 import { useAuthStore } from '../store/authStore';
-import { Activity, Plus, LogOut, TrendingUp, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { Activity, Plus, LogOut, TrendingUp, AlertCircle, CheckCircle2, XCircle, Wifi, WifiOff } from 'lucide-react';
 import MonitorCard from '../components/MonitorCard';
 import AddMonitorModal from '../components/AddMonitorModal';
 
 export default function Dashboard() {
   const { user, logout } = useAuthStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const wsRef = useRef(null);
+  const queryClient = useQueryClient();
 
   // Fetch monitors
   const { data: monitorsData, isLoading: monitorsLoading, refetch: refetchMonitors } = useQuery({
@@ -34,6 +37,63 @@ export default function Dashboard() {
     setIsAddModalOpen(false);
   };
 
+  // WebSocket connection for real-time updates
+  useEffect(() => {
+    const wsUrl = import.meta.env.VITE_API_URL.replace('http', 'ws') + '/api/v1/ws';
+
+    const connectWebSocket = () => {
+      try {
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          setIsConnected(true);
+        };
+
+        ws.onmessage = (event) => {
+          const message = JSON.parse(event.data);
+          console.log('WebSocket message:', message);
+
+          if (message.type === 'stats_updated') {
+            // Invalidate all queries to trigger refetch
+            queryClient.invalidateQueries(['dashboard']);
+            queryClient.invalidateQueries(['monitor-stats']);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          setIsConnected(false);
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket disconnected');
+          setIsConnected(false);
+
+          // Reconnect after 5 seconds
+          setTimeout(() => {
+            console.log('Attempting to reconnect...');
+            connectWebSocket();
+          }, 5000);
+        };
+
+        wsRef.current = ws;
+      } catch (error) {
+        console.error('Failed to create WebSocket:', error);
+        setIsConnected(false);
+      }
+    };
+
+    connectWebSocket();
+
+    // Cleanup on unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [queryClient]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -50,13 +110,30 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <button
-              onClick={logout}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
+            <div className="flex items-center space-x-4">
+              {/* WebSocket Connection Status */}
+              <div className="flex items-center space-x-2">
+                {isConnected ? (
+                  <>
+                    <Wifi className="w-4 h-4 text-green-600" />
+                    <span className="text-xs text-green-600 font-medium">Live</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="w-4 h-4 text-gray-400" />
+                    <span className="text-xs text-gray-400 font-medium">Connecting...</span>
+                  </>
+                )}
+              </div>
+
+              <button
+                onClick={logout}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>

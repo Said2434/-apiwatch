@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { metricsAPI, monitorAPI } from '../lib/api';
 import { Globe, Clock, TrendingUp, AlertCircle, Trash2, Power, PowerOff } from 'lucide-react';
+import ResponseTimeChart from './ResponseTimeChart';
 
 export default function MonitorCard({ monitor, onUpdate }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -12,6 +13,16 @@ export default function MonitorCard({ monitor, onUpdate }) {
     queryFn: async () => {
       const response = await metricsAPI.getStats(monitor.id, 24);
       return response.data;
+    },
+    refetchInterval: 60000, // Refetch every minute
+  });
+
+  // Fetch health check history for chart
+  const { data: healthChecks } = useQuery({
+    queryKey: ['health-checks', monitor.id],
+    queryFn: async () => {
+      const response = await metricsAPI.getHealthChecks(monitor.id, 50);
+      return response.data.checks;
     },
     refetchInterval: 60000, // Refetch every minute
   });
@@ -126,6 +137,13 @@ export default function MonitorCard({ monitor, onUpdate }) {
         <div className="text-center py-4">
           <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
           <p className="text-sm text-gray-600 mt-2">Loading stats...</p>
+        </div>
+      )}
+
+      {/* Response Time Chart */}
+      {healthChecks && healthChecks.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <ResponseTimeChart data={healthChecks} />
         </div>
       )}
 
