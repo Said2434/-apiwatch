@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from app.config import settings
 from app.database import Base, async_engine
 from app.api import auth, monitors
+from app.workers.scheduler import start_scheduler, stop_scheduler
 import logging
 
 # Configure logging
@@ -41,13 +42,22 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
         logger.info("Database tables created successfully")
 
+    # Start background health check scheduler
+    start_scheduler()
+
     logger.info("APIWatch backend started successfully!")
 
     yield  # Application runs
 
     # Shutdown
     logger.info("Shutting down APIWatch backend...")
+
+    # Stop scheduler
+    stop_scheduler()
+
+    # Close database
     await async_engine.dispose()
+
     logger.info("APIWatch backend shutdown complete")
 
 
