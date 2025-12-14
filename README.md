@@ -637,7 +637,7 @@ npm test
 
 ## 🤝 Contributing
 
-This is a portfolio project built for demonstration purposes. However, feedback and suggestions are always welcome!
+This is a pet project built for fun. However, feedback and suggestions are always welcome!
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -656,9 +656,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👤 Author
 
 **Said**
-Full-Stack Developer specializing in Python, FastAPI, React, and DevOps
+Full-Stack AI Developer specializing in Python, FastAPI, React, and DevOps
 
-- 🎯 **Purpose:** Portfolio project for senior developer interviews
 - 🛠️ **Skills Demonstrated:**
   - Full-stack development (Python + React)
   - Real-time systems (WebSocket)
@@ -669,11 +668,6 @@ Full-Stack Developer specializing in Python, FastAPI, React, and DevOps
   - Cloud deployment (Railway + Vercel)
   - Modern DevOps practices
 
-📧 Contact: [Your Email]
-🔗 LinkedIn: [Your LinkedIn]
-💼 Portfolio: [Your Website]
-
----
 
 ## 🙏 Acknowledgments
 
