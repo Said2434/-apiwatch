@@ -114,6 +114,11 @@ export default function Register() {
             </Link>
           </p>
         </div>
+
+        {/* Footer */}
+        <p className="mt-8 text-center text-sm text-gray-500">
+          since 2025 by saidov
+        </p>
       </div>
     </div>
   );

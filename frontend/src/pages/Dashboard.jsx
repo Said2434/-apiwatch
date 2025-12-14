@@ -252,6 +252,15 @@ export default function Dashboard() {
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={handleMonitorAdded}
       />
+
+      {/* Footer */}
+      <footer className="mt-12 pb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-sm text-gray-500">
+            since 2025 by saidov
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
